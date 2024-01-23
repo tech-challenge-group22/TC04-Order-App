@@ -15,6 +15,9 @@ import {
 import { ListOrderUseCase } from '../usecases/listOrder/ListOrder';
 import { NewOrderUseCase } from '../usecases/newOrder/NewOrder';
 
+// Adapters
+import AWSSQSAdapter from '../../../../application/adapters/AWSSqsAdapter';
+
 export class OrderController {
   static async getOrders(searchId?: number): Promise<ListOrderOutputDTO> {
     const orderGateway = new MySQLOrderRepository();
@@ -28,10 +31,12 @@ export class OrderController {
     body: NewOrderInputDTO,
   ): Promise<ListOrderOutputDTO | null> {
     const orderGateway = new MySQLOrderRepository();
+    const queuService = AWSSQSAdapter.getInstance();
 
     let output: NewOrderOutputDTO = await NewOrderUseCase.execute(
       body,
       orderGateway,
+      queuService,
     );
     if (!output.hasError) {
       const input: ListOrderInputDTO = {

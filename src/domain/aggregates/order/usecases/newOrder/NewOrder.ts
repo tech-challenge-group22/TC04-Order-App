@@ -11,10 +11,13 @@ import { OrderGatewayInterface } from '../../interfaces/gateways/OrderGatewayInt
 import { OrderEntity } from '../../core/entities/OrderEntity';
 import { OrderItemEntity } from '../../core/entities/OrderItemEntity';
 
+import IQueueService from '../../../../../application/ports/IQueueService';
+
 export class NewOrderUseCase {
   static async execute(
     body: NewOrderInputDTO,
     orderGateway: OrderGatewayInterface,
+    queueService: IQueueService,
   ): Promise<NewOrderOutputDTO> {
     let _order: OrderEntity;
     let _orderItems: OrderItemEntity[] = [];
@@ -39,7 +42,8 @@ export class NewOrderUseCase {
 
       orderGateway.commit();
 
-      //TODO Enviar para fila de pagamento
+      //Send message to the Queue
+      queueService.sendMessage('order_id:' + order_id);
 
       let output: NewOrderOutputDTO = {
         hasError: false,
@@ -76,8 +80,8 @@ export class NewOrderUseCase {
 
       queryParams.push({
         order_id: order_id,
-        item_id: order_items[i].item_id,
-        order_item_qtd: order_items[i].order_item_qtd,
+        item_id: item_id,
+        order_item_qtd: order_item_qtd,
       });
     }
     return queryParams;
@@ -98,7 +102,7 @@ export class NewOrderUseCase {
 
     let result = await gateway.getItemPrices(ids);
     for (let row of result) {
-      var ordemItem = new OrderItemEntity();
+      let ordemItem = new OrderItemEntity();
       ordemItem.item_id = row.id;
       ordemItem.order_item_qtd = items.get(row.id)?.order_item_qtd;
       ordemItem.price = row.item_price;
