@@ -11,39 +11,52 @@ import { OrderGatewayInterface } from '../../interfaces/gateways/OrderGatewayInt
 import { OrderEntity } from '../../core/entities/OrderEntity';
 import { OrderItemEntity } from '../../core/entities/OrderItemEntity';
 
+import IQueueService from '../../../../../application/ports/IQueueService';
+
 export class NewOrderUseCase {
   static async execute(
     body: NewOrderInputDTO,
     orderGateway: OrderGatewayInterface,
+    queueService: IQueueService,
   ): Promise<NewOrderOutputDTO> {
     let _order: OrderEntity;
     let _orderItems: OrderItemEntity[] = [];
 
     try {
-      const { customer_id, order_items } = body;
+      // const { customer_id, order_items } = body;
 
-      _orderItems = await this.loadItemPrices(orderGateway, body.order_items);
-      _order = new OrderEntity(body.customer_id, _orderItems);
-      const order_total = _order.totalOrderPrice();
+      // _orderItems = await this.loadItemPrices(orderGateway, body.order_items);
+      // _order = new OrderEntity(body.customer_id, _orderItems);
+      // const order_total = _order.totalOrderPrice();
 
-      orderGateway.beginTransaction();
+      // orderGateway.beginTransaction();
 
-      let order_id = await orderGateway.newOrder(customer_id || 1, order_total);
+      // let order_id = await orderGateway.newOrder(customer_id || 1, order_total);
 
-      //insert order_items
-      const formated_order_items = NewOrderUseCase.formatOrderItems(
-        order_id,
-        order_items,
-      );
-      await orderGateway.insertOrderItems(formated_order_items);
+      // //insert order_items
+      // const formated_order_items = NewOrderUseCase.formatOrderItems(
+      //   order_id,
+      //   order_items,
+      // );
+      // await orderGateway.insertOrderItems(formated_order_items);
 
-      orderGateway.commit();
+      // orderGateway.commit();
 
-      //TODO Enviar para fila de pagamento
+      const message = {
+        order_id: 1,
+        payment_method: 1,
+      };
+
+      //Send message to PaymentQueueReceived.fifo
+      queueService.sendMessage({
+        message,
+        QueueOutputUrl: `${process.env.AWS_OUTPUT_PAYMENT_QUEUE_RECEIVED_URL}`,
+        MessageGroupId: `${process.env.AWS_OUTPUT_PAYMENT_QUEUE_RECEIVED_MESSAGE_GROUP}`,
+      });
 
       let output: NewOrderOutputDTO = {
         hasError: false,
-        orderId: order_id,
+        orderId: 1,
         httpCode: 200,
       };
 
@@ -76,8 +89,8 @@ export class NewOrderUseCase {
 
       queryParams.push({
         order_id: order_id,
-        item_id: order_items[i].item_id,
-        order_item_qtd: order_items[i].order_item_qtd,
+        item_id: item_id,
+        order_item_qtd: order_item_qtd,
       });
     }
     return queryParams;
@@ -98,7 +111,7 @@ export class NewOrderUseCase {
 
     let result = await gateway.getItemPrices(ids);
     for (let row of result) {
-      var ordemItem = new OrderItemEntity();
+      let ordemItem = new OrderItemEntity();
       ordemItem.item_id = row.id;
       ordemItem.order_item_qtd = items.get(row.id)?.order_item_qtd;
       ordemItem.price = row.item_price;
