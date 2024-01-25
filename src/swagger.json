@@ -280,7 +280,8 @@
                         "order_item_qtd": 1,
                         "item_id": 1
                       }
-                    ]
+                    ],
+                    "payment_method": 1
                   }
                 },
                 "example3": {
@@ -292,7 +293,8 @@
                         "order_item_qtd": 1,
                         "item_id": 1
                       }
-                    ]
+                    ],
+                    "payment_method": 1
                   }
                 }
               }

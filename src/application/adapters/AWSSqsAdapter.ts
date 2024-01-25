@@ -63,18 +63,19 @@ export default class AWSSQSAdapter implements IQueueService {
       };
 
       const data = await this.sqs.receiveMessage(receiveParams).promise();
-
+      console.log('Received data:' + data);
       if (data.Messages && data.Messages.length > 0) {
         for (const element of data.Messages) {
           const message = element;
           // Process the message
           const msgBody = JSON.parse(String(message.Body));
-
+          console.log({ msgBody });
           await OrderController.updateOrderStatus({
             order_id: Number(msgBody.order_id),
             status: msgBody.status,
           });
 
+          console.log('Deleting message.');
           await this.sqs
             .deleteMessage({
               QueueUrl: `${process.env.AWS_INPUT_PAYMENT_QUEUE_PROCESSED_URL}`,
@@ -82,6 +83,7 @@ export default class AWSSQSAdapter implements IQueueService {
             })
             .promise();
         }
+        console.log('Message deleted.');
       }
     } catch (error) {
       console.error('Error processing message:', error);

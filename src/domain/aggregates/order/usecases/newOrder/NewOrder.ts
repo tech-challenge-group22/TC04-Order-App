@@ -44,6 +44,7 @@ export class NewOrderUseCase {
 
       const message = {
         order_id: 1,
+        payment_method: 1,
       };
 
       //Send message to PaymentQueueReceived.fifo
