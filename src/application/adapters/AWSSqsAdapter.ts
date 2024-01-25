@@ -49,7 +49,6 @@ export default class AWSSQSAdapter implements IQueueService {
 
     try {
       const data = await this.sqs.sendMessage(params).promise();
-      console.log('Message sent:', data.MessageId);
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -66,38 +65,22 @@ export default class AWSSQSAdapter implements IQueueService {
       const data = await this.sqs.receiveMessage(receiveParams).promise();
 
       if (data.Messages && data.Messages.length > 0) {
-        console.log(
-          'Quantidade mensagens recebidas: FinishOrder' + data.Messages.length,
-        );
         for (const element of data.Messages) {
           const message = element;
-
-          console.log('Received message:', message.Body);
-          console.log('Message Id: ' + message.MessageId);
-
           // Process the message
           const msgBody = JSON.parse(String(message.Body));
-          console.log({ msgBody });
-          // teste mockado
-          // const msgBody = {
-          //   order_id: 7,
-          //   status: 'Aprovado',
-          // };
-          console.log('Order Id: ' + msgBody.order_id);
 
           await OrderController.updateOrderStatus({
             order_id: Number(msgBody.order_id),
             status: msgBody.status,
           });
 
-          console.log('Deleting payment message Id: ' + message.MessageId);
           await this.sqs
             .deleteMessage({
               QueueUrl: `${process.env.AWS_INPUT_PAYMENT_QUEUE_PROCESSED_URL}`,
               ReceiptHandle: message.ReceiptHandle!,
             })
             .promise();
-          console.log('Payment message deleted.');
         }
       }
     } catch (error) {
@@ -116,25 +99,16 @@ export default class AWSSQSAdapter implements IQueueService {
       const data = await this.sqs.receiveMessage(receiveParams).promise();
 
       if (data.Messages && data.Messages.length > 0) {
-        console.log(
-          'Quantidade mensagens recebidas: FinishOrder' + data.Messages.length,
-        );
         for (const element of data.Messages) {
           const message = element;
-
-          console.log('Received message:', message.Body);
-          console.log('Message Id: ' + message.MessageId);
-
           // Process the message
           const msgBody = JSON.parse(String(message.Body));
-          console.log('Order Id: ' + msgBody.order_id);
 
           await OrderController.updateOrderStatus({
             order_id: Number(msgBody.order_id),
             status: 'Finalizado',
           });
 
-          console.log('Deleting message Id: ' + message.MessageId);
           await this.sqs
             .deleteMessage({
               QueueUrl: `${process.env.AWS_INPUT_ORDER_QUEUE_FINISHED_URL}`,

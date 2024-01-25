@@ -18,7 +18,6 @@ export class UpdateOrderStatusUseCase {
         const message = {
           order_id: params.order_id,
         };
-        console.log('Entrou no aprovado');
         queueService.sendMessage({
           message,
           QueueOutputUrl: `${process.env.AWS_OUTPUT_ORDER_QUEUE_RECEIVED_URL}`,
