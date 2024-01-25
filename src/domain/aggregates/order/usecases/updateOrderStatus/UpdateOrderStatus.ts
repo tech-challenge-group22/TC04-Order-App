@@ -8,7 +8,7 @@ import {
 export class UpdateOrderStatusUseCase {
   static async execute(
     params: UpdateOrderStatusParams,
-    orderGateway: OrderGatewayInterface,
+    //orderGateway: OrderGatewayInterface,
     queueService: IQueueService,
   ): Promise<UpdateOrderStatusDTO> {
     try {
@@ -36,7 +36,6 @@ export class UpdateOrderStatusUseCase {
         httpCode: 204,
         message: 'Deu certo',
       };
-
       return result;
     } catch (error) {
       const output: UpdateOrderStatusDTO = {

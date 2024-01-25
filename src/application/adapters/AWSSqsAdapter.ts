@@ -76,11 +76,13 @@ export default class AWSSQSAdapter implements IQueueService {
           console.log('Message Id: ' + message.MessageId);
 
           // Process the message
-          // const msgBody = JSON.parse(String(message.Body));
-          const msgBody = {
-            order_id: 1,
-            status: 'Aprovado',
-          };
+          const msgBody = JSON.parse(String(message.Body));
+          console.log({ msgBody });
+          // teste mockado
+          // const msgBody = {
+          //   order_id: 7,
+          //   status: 'Aprovado',
+          // };
           console.log('Order Id: ' + msgBody.order_id);
 
           await OrderController.updateOrderStatus({
@@ -88,13 +90,14 @@ export default class AWSSQSAdapter implements IQueueService {
             status: msgBody.status,
           });
 
-          console.log('Deleting message Id: ' + message.MessageId);
+          console.log('Deleting payment message Id: ' + message.MessageId);
           await this.sqs
             .deleteMessage({
-              QueueUrl: `${process.env.AWS_INPUT_QUEUE_URL}`,
+              QueueUrl: `${process.env.AWS_INPUT_PAYMENT_QUEUE_PROCESSED_URL}`,
               ReceiptHandle: message.ReceiptHandle!,
             })
             .promise();
+          console.log('Payment message deleted.');
         }
       }
     } catch (error) {
@@ -134,7 +137,7 @@ export default class AWSSQSAdapter implements IQueueService {
           console.log('Deleting message Id: ' + message.MessageId);
           await this.sqs
             .deleteMessage({
-              QueueUrl: `${process.env.AWS_INPUT_QUEUE_URL}`,
+              QueueUrl: `${process.env.AWS_INPUT_ORDER_QUEUE_FINISHED_URL}`,
               ReceiptHandle: message.ReceiptHandle!,
             })
             .promise();
