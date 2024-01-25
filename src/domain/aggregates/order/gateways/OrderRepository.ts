@@ -24,7 +24,7 @@ export class MySQLOrderRepository implements OrderGatewayInterface {
   commit(): void {
     this.connection.commit();
   }
-  
+
   rollback(): void {
     this.connection.rollback();
   }
@@ -114,6 +114,19 @@ export class MySQLOrderRepository implements OrderGatewayInterface {
       return await this.commitDB(query, [items]);
     } catch (err) {
       const msg = 'Error getting Order Items prices';
+      console.log(msg, err);
+      throw new Error(msg);
+    } finally {
+      this.closeConnection();
+    }
+  }
+
+  async updateOrderStatus(order_id: number, status: string): Promise<any> {
+    try {
+      const query = 'UPDATE orders SET status = "(?)" WHERE order_id = (?)';
+      return await this.commitDB(query, [status, order_id]);
+    } catch (err) {
+      const msg = 'Error updatind Order status';
       console.log(msg, err);
       throw new Error(msg);
     } finally {

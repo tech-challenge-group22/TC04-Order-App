@@ -2,6 +2,7 @@ import IQueueService from '../ports/IQueueService';
 import * as dotenv from 'dotenv';
 import { SQS } from 'aws-sdk';
 import cron from 'node-cron';
+import { OrderController } from '../../domain/aggregates/order/controllers/OrderController';
 
 export default class AWSSQSAdapter implements IQueueService {
   private sqs = new SQS();
@@ -18,7 +19,8 @@ export default class AWSSQSAdapter implements IQueueService {
     //exemple:
     // cron.schedule('*/5 * * * * *', .....)
     cron.schedule('*/' + polling_interval.toString() + ' * * * * *', () => {
-      this.receiveMessage();
+      this.receiveMessagePaymentProcessed();
+      this.receiveMessageFinishOrder();
     });
   }
 
@@ -29,13 +31,20 @@ export default class AWSSQSAdapter implements IQueueService {
     return this._instance;
   }
 
-  async sendMessage(message: string) {
-    message = 'Id: ' + this.messageID().toString() + ', ' + message;
-
+  async sendMessage({
+    message,
+    QueueOutputUrl,
+    MessageGroupId,
+  }: {
+    message: any;
+    QueueOutputUrl: string;
+    MessageGroupId: string;
+  }) {
     const params: SQS.Types.SendMessageRequest = {
-      QueueUrl: `${process.env.AWS_OUTPUT_QUEUE_URL}`,
+      QueueUrl: QueueOutputUrl,
       MessageBody: JSON.stringify(message),
-      MessageGroupId: `${process.env.AWS_MESSAGE_GROUP}`,
+      MessageGroupId,
+      MessageDeduplicationId: `${this.messageID().toString()}`,
     };
 
     try {
@@ -46,30 +55,90 @@ export default class AWSSQSAdapter implements IQueueService {
     }
   }
 
-  async receiveMessage() {
+  async receiveMessagePaymentProcessed() {
     try {
       const receiveParams: SQS.Types.ReceiveMessageRequest = {
-        QueueUrl: `${process.env.AWS_INPUT_QUEUE_URL}`,
-        MaxNumberOfMessages: 1,
-        WaitTimeSeconds: 20, // Adjust as needed
+        QueueUrl: `${process.env.AWS_INPUT_PAYMENT_QUEUE_PROCESSED_URL}`,
+        MaxNumberOfMessages: 10,
+        WaitTimeSeconds: 5,
       };
 
       const data = await this.sqs.receiveMessage(receiveParams).promise();
 
       if (data.Messages && data.Messages.length > 0) {
-        const message = data.Messages[0];
-        console.log('Received message:', message.Body);
+        console.log(
+          'Quantidade mensagens recebidas: FinishOrder' + data.Messages.length,
+        );
+        for (const element of data.Messages) {
+          const message = element;
 
-        // Process the message as needed
-        const msgBody = JSON.parse(String(message.Body));
+          console.log('Received message:', message.Body);
+          console.log('Message Id: ' + message.MessageId);
 
-        // Delete the message from the queue
-        await this.sqs
-          .deleteMessage({
-            QueueUrl: `${process.env.AWS_INPUT_QUEUE_URL}`,
-            ReceiptHandle: message.ReceiptHandle!,
-          })
-          .promise();
+          // Process the message
+          // const msgBody = JSON.parse(String(message.Body));
+          const msgBody = {
+            order_id: 1,
+            status: 'Aprovado',
+          };
+          console.log('Order Id: ' + msgBody.order_id);
+
+          await OrderController.updateOrderStatus({
+            order_id: Number(msgBody.order_id),
+            status: msgBody.status,
+          });
+
+          console.log('Deleting message Id: ' + message.MessageId);
+          await this.sqs
+            .deleteMessage({
+              QueueUrl: `${process.env.AWS_INPUT_QUEUE_URL}`,
+              ReceiptHandle: message.ReceiptHandle!,
+            })
+            .promise();
+        }
+      }
+    } catch (error) {
+      console.error('Error processing message:', error);
+    }
+  }
+
+  async receiveMessageFinishOrder() {
+    try {
+      const receiveParams: SQS.Types.ReceiveMessageRequest = {
+        QueueUrl: `${process.env.AWS_INPUT_ORDER_QUEUE_FINISHED_URL}`,
+        MaxNumberOfMessages: 10,
+        WaitTimeSeconds: 5,
+      };
+
+      const data = await this.sqs.receiveMessage(receiveParams).promise();
+
+      if (data.Messages && data.Messages.length > 0) {
+        console.log(
+          'Quantidade mensagens recebidas: FinishOrder' + data.Messages.length,
+        );
+        for (const element of data.Messages) {
+          const message = element;
+
+          console.log('Received message:', message.Body);
+          console.log('Message Id: ' + message.MessageId);
+
+          // Process the message
+          const msgBody = JSON.parse(String(message.Body));
+          console.log('Order Id: ' + msgBody.order_id);
+
+          await OrderController.updateOrderStatus({
+            order_id: Number(msgBody.order_id),
+            status: 'Finalizado',
+          });
+
+          console.log('Deleting message Id: ' + message.MessageId);
+          await this.sqs
+            .deleteMessage({
+              QueueUrl: `${process.env.AWS_INPUT_QUEUE_URL}`,
+              ReceiptHandle: message.ReceiptHandle!,
+            })
+            .promise();
+        }
       }
     } catch (error) {
       console.error('Error processing message:', error);
