@@ -5,6 +5,7 @@
   "main": ".src/main.ts",
   "scripts": {
     "start:dev": "nodemon",
+    "test": "npm run test:cucumber && npm run test:jest",
     "test:cucumber": "nyc cucumber-js",
     "test:jest": "jest",
     "start": "node dist/main.js",
