@@ -7,5 +7,5 @@ export interface UpdateOrderStatusDTO {
 
 export interface UpdateOrderStatusParams {
   order_id: number;
-  status: string;
+  status: number;
 }

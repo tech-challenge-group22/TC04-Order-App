@@ -48,7 +48,7 @@ export default class AWSSQSAdapter implements IQueueService {
     };
 
     try {
-      const data = await this.sqs.sendMessage(params).promise();
+      await this.sqs.sendMessage(params).promise();
     } catch (error) {
       console.error('Error sending message:', error);
     }
@@ -63,7 +63,6 @@ export default class AWSSQSAdapter implements IQueueService {
       };
 
       const data = await this.sqs.receiveMessage(receiveParams).promise();
-      console.log('Received data:' + data);
       if (data.Messages && data.Messages.length > 0) {
         for (const element of data.Messages) {
           const message = element;
@@ -72,7 +71,7 @@ export default class AWSSQSAdapter implements IQueueService {
           console.log({ msgBody });
           await OrderController.updateOrderStatus({
             order_id: Number(msgBody.order_id),
-            status: msgBody.status,
+            status: msgBody.payment_status,
           });
 
           console.log('Deleting message.');
@@ -105,12 +104,13 @@ export default class AWSSQSAdapter implements IQueueService {
           const message = element;
           // Process the message
           const msgBody = JSON.parse(String(message.Body));
-
+          console.log({ msgBody });
           await OrderController.updateOrderStatus({
             order_id: Number(msgBody.order_id),
-            status: 'Finalizado',
+            status: 4,
           });
 
+          console.log('Deleting message.');
           await this.sqs
             .deleteMessage({
               QueueUrl: `${process.env.AWS_INPUT_ORDER_QUEUE_FINISHED_URL}`,

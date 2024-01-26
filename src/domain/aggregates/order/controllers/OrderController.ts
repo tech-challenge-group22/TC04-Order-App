@@ -55,11 +55,12 @@ export class OrderController {
     }
   }
 
-  static async updateOrderStatus(params: { order_id: number; status: string }) {
-    //const orderGateway = new MySQLOrderRepository();
+  static async updateOrderStatus(params: { order_id: number; status: number }) {
+    const orderGateway = new MySQLOrderRepository();
     const queuService = AWSSQSAdapter.getInstance();
     const output: UpdateOrderStatusDTO = await UpdateOrderStatusUseCase.execute(
       params,
+      orderGateway,
       queuService,
     );
     return output;

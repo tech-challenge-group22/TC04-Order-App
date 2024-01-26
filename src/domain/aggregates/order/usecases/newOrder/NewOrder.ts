@@ -23,24 +23,28 @@ export class NewOrderUseCase {
     let _orderItems: OrderItemEntity[] = [];
 
     try {
-      // const { customer_id, order_items } = body;
+      const { customer_id, order_items } = body;
 
-      // _orderItems = await this.loadItemPrices(orderGateway, body.order_items);
-      // _order = new OrderEntity(body.customer_id, _orderItems);
-      // const order_total = _order.totalOrderPrice();
+      _orderItems = await this.loadItemPrices(orderGateway, body.order_items);
+      _order = new OrderEntity(body.customer_id, _orderItems);
+      const order_total = _order.totalOrderPrice();
 
-      // orderGateway.beginTransaction();
+      orderGateway.beginTransaction();
 
-      // let order_id = await orderGateway.newOrder(customer_id || 1, order_total);
+      let order_id = await orderGateway.newOrder(
+        customer_id || 1,
+        order_total,
+        1,
+      );
 
-      // //insert order_items
-      // const formated_order_items = NewOrderUseCase.formatOrderItems(
-      //   order_id,
-      //   order_items,
-      // );
-      // await orderGateway.insertOrderItems(formated_order_items);
+      //insert order_items
+      const formated_order_items = NewOrderUseCase.formatOrderItems(
+        order_id,
+        order_items,
+      );
+      await orderGateway.insertOrderItems(formated_order_items);
 
-      // orderGateway.commit();
+      orderGateway.commit();
 
       const message = {
         order_id: 1,
@@ -51,7 +55,7 @@ export class NewOrderUseCase {
       queueService.sendMessage({
         message,
         QueueOutputUrl: `${process.env.AWS_OUTPUT_PAYMENT_QUEUE_RECEIVED_URL}`,
-        MessageGroupId: `${process.env.AWS_OUTPUT_PAYMENT_QUEUE_RECEIVED_MESSAGE_GROUP}`,
+        MessageGroupId: `${process.env.AWS_MESSAGE_GROUP}`,
       });
 
       let output: NewOrderOutputDTO = {
