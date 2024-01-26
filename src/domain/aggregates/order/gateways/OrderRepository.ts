@@ -141,13 +141,5 @@ export class MySQLOrderRepository implements OrderGatewayInterface {
     }
   }
 
-  closeConnection(): void {
-    // this.connection.end((err) => {
-    //   if (err) {
-    //     console.error('Error closing MySQL connection:', err.message);
-    //   } else {
-    //     console.log('MySQL connection closed.');
-    //   }
-    // });
-  }
+  closeConnection(): void {}
 }

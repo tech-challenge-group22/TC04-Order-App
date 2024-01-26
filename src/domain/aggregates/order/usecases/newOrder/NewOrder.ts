@@ -32,7 +32,7 @@ export class NewOrderUseCase {
       orderGateway.beginTransaction();
 
       let order_id = await orderGateway.newOrder(
-        customer_id || 1,
+        customer_id ?? 1,
         order_total,
         1,
       );
