@@ -1,5 +1,5 @@
-import IProductRepository from '../../../../../../../src/domain/aggregates/productMaintenance/core/ports/IProductRepository';
-import CreateProduct from '../../../../../../../src/domain/aggregates/productMaintenance/useCases/create-product/CreateProduct';
+import IProductCacheRepository from '../../../../../../../src/domain/aggregates/productMaintenance/core/ports/IProductCacheRepository';
+import CreateProductCache from '../../../../../../../src/domain/aggregates/productMaintenance/useCases/create-product-cache/CreateProductCache';
 import { CreateProductInputDTO } from '../../../../../../../src/domain/aggregates/productMaintenance/useCases/create-product/CreateProductDTO';
 
 const createProductMock = {
@@ -13,12 +13,10 @@ const createProductMock = {
   changedRows: 0,
 };
 
-const productRepositoryMock: IProductRepository = {
+const productRepositoryMock: IProductCacheRepository = {
   createProduct: jest.fn().mockResolvedValue(createProductMock),
   getProducts: jest.fn(),
   getProductById: jest.fn(),
-  getProductByCategory: jest.fn(),
-  updateProduct: jest.fn(),
   deleteProduct: jest.fn(),
 };
 
@@ -32,50 +30,48 @@ const inputMock: CreateProductInputDTO = {
     'https://www.mrmixbrasil.com.br/arquivos-upload/produtos/casquinha-de-chocolate-05022021111624517024.png',
 };
 
-describe('CreateProduct', () => {
-  it('should create a product and return success', async () => {
-    const createUseCase = new CreateProduct(productRepositoryMock);
+describe('CreateProductCache', () => {
+  it('should create a product on cache and return success', async () => {
+    const createUseCase = new CreateProductCache(productRepositoryMock);
 
     const result = await createUseCase.execute(inputMock);
 
     expect(result.hasError).toBe(false);
-    expect(result.message).toBe('Product created successfully');
+    expect(result.message).toBe('Item inserted successfully on cache');
     expect(result.result).toBe(createProductMock);
   });
 
-  it('should return an error when try to create a product without id and return error', async () => {
-    const productRepositoryErrorMock: IProductRepository = {
+  it('should return an error when try to create a product without input and return error', async () => {
+    const productRepositoryErrorMock: IProductCacheRepository = {
       createProduct: jest.fn(() => {
         throw new Error('Erro mockado');
       }),
       getProducts: jest.fn(),
       getProductById: jest.fn(),
-      getProductByCategory: jest.fn(),
-      updateProduct: jest.fn(),
       deleteProduct: jest.fn(),
     };
 
     const inputErrorMock = {} as CreateProductInputDTO;
 
-    const createUseCase = new CreateProduct(productRepositoryErrorMock);
+    const createUseCase = new CreateProductCache(productRepositoryErrorMock);
 
     const result = await createUseCase.execute(inputErrorMock);
     expect(result.hasError).toBe(true);
-    expect(result.message).toBe('["Missing body."]');
+    expect(result.message).toBe('Failed to create product on cache');
   });
 
   it('should return an error when create a product and return error', async () => {
-    const productRepositoryErrorMock: IProductRepository = {
+    const productRepositoryErrorMock: IProductCacheRepository = {
       ...productRepositoryMock,
       createProduct: jest.fn(() => {
         throw new Error('Erro mockado');
       }),
     };
 
-    const createUseCase = new CreateProduct(productRepositoryErrorMock);
+    const createUseCase = new CreateProductCache(productRepositoryErrorMock);
 
     const result = await createUseCase.execute(inputMock);
     expect(result.hasError).toBe(true);
-    expect(result.message).toBe('Failed to create product');
+    expect(result.message).toBe('Failed to create product on cache');
   });
 });
