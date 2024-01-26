@@ -23,7 +23,7 @@ export class NewOrderUseCase {
     let _orderItems: OrderItemEntity[] = [];
 
     try {
-      const { customer_id, order_items } = body;
+      const { customer_id, order_items, payment_method } = body;
 
       _orderItems = await this.loadItemPrices(orderGateway, body.order_items);
       _order = new OrderEntity(body.customer_id, _orderItems);
@@ -47,8 +47,8 @@ export class NewOrderUseCase {
       orderGateway.commit();
 
       const message = {
-        order_id: 1,
-        payment_method: 1,
+        order_id: order_id,
+        payment_method: payment_method,
       };
 
       //Send message to PaymentQueueReceived.fifo
