@@ -33,7 +33,7 @@ export class MySQLOrderRepository implements OrderGatewayInterface {
     const values = [orderId];
     var myQuery = `
             SELECT
-                O.id, O.order_date, O.order_total, O.customer_id,
+                O.id, O.order_date, O.order_total, O.customer_id, O.order_status,
                 JSON_ARRAYAGG(
                   JSON_OBJECT(
                     'item', I.item_name,
@@ -71,11 +71,15 @@ export class MySQLOrderRepository implements OrderGatewayInterface {
     });
   }
 
-  async newOrder(customerId: number, total: number): Promise<number> {
+  async newOrder(
+    customerId: number,
+    total: number,
+    order_status: number,
+  ): Promise<number> {
     try {
       const insertQuery =
-        'INSERT INTO orders (order_date, order_total, customer_id) VALUES (NOW(), ?, ?)';
-      const values = [total, customerId];
+        'INSERT INTO orders (order_date, order_total, customer_id, order_status) VALUES (NOW(), ?, ?, ?)';
+      const values = [total, customerId, order_status];
       const result = await this.commitDB(insertQuery, values);
 
       return result.insertId;
@@ -121,10 +125,13 @@ export class MySQLOrderRepository implements OrderGatewayInterface {
     }
   }
 
-  async updateOrderStatus(order_id: number, status: string): Promise<any> {
+  async updateOrderStatus(
+    order_id: number,
+    order_status: number,
+  ): Promise<any> {
     try {
-      const query = 'UPDATE orders SET status = "(?)" WHERE order_id = (?)';
-      return await this.commitDB(query, [status, order_id]);
+      const query = 'UPDATE orders SET order_status = (?) WHERE id = (?)';
+      return await this.commitDB(query, [order_status, order_id]);
     } catch (err) {
       const msg = 'Error updatind Order status';
       console.log(msg, err);
@@ -135,12 +142,6 @@ export class MySQLOrderRepository implements OrderGatewayInterface {
   }
 
   closeConnection(): void {
-    this.connection.end((err) => {
-      if (err) {
-        console.error('Error closing MySQL connection:', err.message);
-      } else {
-        console.log('MySQL connection closed.');
-      }
-    });
+    console.log('Close connection');
   }
 }

@@ -11,6 +11,7 @@ Given(
     const orderGatewayMock: OrderGatewayInterface = {
       getOrders: sinon.stub().resolves([]),
       newOrder: sinon.stub(),
+      updateOrderStatus: sinon.stub(),
       insertOrderItems: sinon.stub(),
       beginTransaction: sinon.stub(),
       commit: sinon.stub(),

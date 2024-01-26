@@ -8,32 +8,32 @@ import {
 export class UpdateOrderStatusUseCase {
   static async execute(
     params: UpdateOrderStatusParams,
-    //orderGateway: OrderGatewayInterface,
+    orderGateway: OrderGatewayInterface,
     queueService: IQueueService,
   ): Promise<UpdateOrderStatusDTO> {
     try {
-      // orderGateway.beginTransaction();
+      orderGateway.beginTransaction();
 
-      if (params.status === 'Aprovado') {
+      if (params.status === 3) {
         const message = {
           order_id: params.order_id,
         };
         queueService.sendMessage({
           message,
           QueueOutputUrl: `${process.env.AWS_OUTPUT_ORDER_QUEUE_RECEIVED_URL}`,
-          MessageGroupId: `${process.env.AWS_OUTPUT_ORDER_QUEUE_RECEIVED_MESSAGE_GROUP}`,
+          MessageGroupId: `${process.env.AWS_MESSAGE_GROUP}`,
         });
       }
 
-      // orderGateway.updateOrderStatus(params.order_id, params.status);
+      orderGateway.updateOrderStatus(params.order_id, params.status);
 
-      // orderGateway.commit();
+      orderGateway.commit();
 
       const result: UpdateOrderStatusDTO = {
         hasError: false,
         orderId: params.order_id,
-        httpCode: 204,
-        message: 'Deu certo',
+        httpCode: 201,
+        message: 'Status atualizado com sucesso',
       };
       return result;
     } catch (error) {

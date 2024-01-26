@@ -1,6 +1,10 @@
 import { OrderEntity } from '../../core/entities/OrderEntity';
 import { OrderGatewayInterface } from '../../interfaces/gateways/OrderGatewayInterface';
-import { ListOrderInputDTO, ListOrderOutputDTO, ResultOrderDTO } from './ListOrderDTO';
+import {
+  ListOrderInputDTO,
+  ListOrderOutputDTO,
+  ResultOrderDTO,
+} from './ListOrderDTO';
 
 export class ListOrderUseCase {
   static async execute(
@@ -25,12 +29,15 @@ export class ListOrderUseCase {
         output = { hasError: true, httpCode: 404 };
 
         if (params.id) {
-          msg = 'Order ' + Number(params.id) + ' not found. Please, certity that it is a valid Order Number!';
+          msg =
+            'Order ' +
+            Number(params.id) +
+            ' not found. Please, certity that it is a valid Order Number!';
         } else {
           msg = 'Ops, No Orders found. Something went wrong... :(';
         }
         output.message = msg;
-        
+
         return output;
       } else {
         const orders: OrderEntity[] = result.map((result: any) => {
@@ -42,15 +49,16 @@ export class ListOrderUseCase {
 
         const filteredOrders = this.filterOrders(orders);
         filteredOrders.forEach((element: any) => {
-          const resultOrder: ResultOrderDTO = 
-          { order_id: element.order_id, 
-            order_date: element.order_date, 
-            order_total: element.order_total, 
+          const resultOrder: ResultOrderDTO = ({
+            order_id: element.order_id,
+            order_date: element.order_date,
+            order_total: element.order_total,
             order_status: element.order_status,
-            customer_name: element.customer_name, 
-            order_items: element.order_items} = element;
-            
-            output.result?.push(resultOrder);
+            customer_name: element.customer_name,
+            order_items: element.order_items,
+          } = element);
+
+          output.result?.push(resultOrder);
         });
         return output;
       }
@@ -67,19 +75,12 @@ export class ListOrderUseCase {
 
   static filterOrders(orders: OrderEntity[]) {
     // Filtrar e remover pedidos com status "Finalizado"
-    const filteredOrders = orders.filter(
-      (order) => order.order_status !== 'Finalizado',
-    );
-
-    // Definir a ordem personalizada dos status
-    const customStatusOrder = ['Pronto', 'Em Preparação', 'Recebido'];
+    const filteredOrders = orders.filter((order) => order.order_status !== 4);
 
     // Ordenar por status personalizado e depois por data
     filteredOrders.sort((a, b) => {
       if (a.order_status && b.order_status) {
-        const statusComparison =
-          customStatusOrder.indexOf(a.order_status) -
-          customStatusOrder.indexOf(b.order_status);
+        const statusComparison = a.order_status - b.order_status;
 
         if (statusComparison !== 0) {
           return statusComparison;
