@@ -141,5 +141,7 @@ export class MySQLOrderRepository implements OrderGatewayInterface {
     }
   }
 
-  closeConnection(): void {}
+  closeConnection(): void {
+    console.log('Close connection');
+  }
 }
