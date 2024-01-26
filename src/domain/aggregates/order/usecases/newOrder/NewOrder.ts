@@ -60,16 +60,12 @@ export class NewOrderUseCase {
 
       let output: NewOrderOutputDTO = {
         hasError: false,
-        orderId: 1,
-        httpCode: 200,
+        orderId: order_id,
+        httpCode: 201,
       };
 
       return output;
     } catch (error) {
-      console.log(
-        'Error by inserting a new order. Please, check your data.',
-        error,
-      );
       orderGateway.rollback();
 
       let output: NewOrderOutputDTO = {

@@ -21,7 +21,7 @@ export default class DeleteProduct implements UseCaseInterface {
         };
       }
 
-      const result = await this.repository.deleteProduct(input.itemId);
+      await this.repository.deleteProduct(input.itemId);
       let output: DeleteProductOutputDTO = {
         hasError: false,
         message: 'Product deleted successfully',

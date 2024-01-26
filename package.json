@@ -4,8 +4,9 @@
   "description": "",
   "main": ".src/main.ts",
   "scripts": {
-    "test": "nyc cucumber-js",
     "start:dev": "nodemon",
+    "test:cucumber": "nyc cucumber-js",
+    "test:jest": "jest",
     "start": "node dist/main.js",
     "build": "npx tsc",
     "prepare": "husky install",

@@ -63,10 +63,9 @@ export class ListOrderUseCase {
         return output;
       }
     } catch (error: any) {
-      console.log('Error in query Database', error);
       const output = {
         hasError: true,
-        message: error,
+        message: error.message,
       };
 
       return output;
