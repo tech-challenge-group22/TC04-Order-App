@@ -7,7 +7,7 @@ export class OrderEntity {
   order_date?: Date;
   order_total?: number;
   customer_name?: string;
-  order_status?: string;
+  order_status?: number;
 
   constructor(
     customer_id?: number,
@@ -16,7 +16,7 @@ export class OrderEntity {
     order_date?: Date,
     order_total?: number,
     customer_name?: string,
-    order_status?: string,
+    order_status?: number,
   ) {
     this.order_id = order_id;
     this.order_date = order_date;
@@ -32,14 +32,17 @@ export class OrderEntity {
  : number  */
   public totalOrderPrice(): number {
     let price: number = 0.0;
-    
-    if (this.order_items != undefined){
-      for (let i = 0; i < this.order_items.length; i++){
-        price = price + ( Number(this.order_items[i].price) * Number(this.order_items[i].order_item_qtd) );
+
+    if (this.order_items != undefined) {
+      for (let i = 0; i < this.order_items.length; i++) {
+        price =
+          price +
+          Number(this.order_items[i].price) *
+            Number(this.order_items[i].order_item_qtd);
       }
-    } else{
+    } else {
     }
-    
+
     return price;
   }
 }

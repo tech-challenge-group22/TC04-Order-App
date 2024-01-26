@@ -33,7 +33,7 @@ export class MySQLOrderRepository implements OrderGatewayInterface {
     const values = [orderId];
     var myQuery = `
             SELECT
-                O.id, O.order_date, O.order_total, O.customer_id,
+                O.id, O.order_date, O.order_total, O.customer_id, O.order_status,
                 JSON_ARRAYAGG(
                   JSON_OBJECT(
                     'item', I.item_name,
