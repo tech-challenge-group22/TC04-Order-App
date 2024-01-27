@@ -13,7 +13,7 @@ const createProductMock = {
   changedRows: 0,
 };
 
-const productRepositoryMock: IProductCacheRepository = {
+const productCacheRepositoryMock: IProductCacheRepository = {
   createProduct: jest.fn().mockResolvedValue(createProductMock),
   getProducts: jest.fn(),
   getProductById: jest.fn(),
@@ -32,7 +32,7 @@ const inputMock: CreateProductInputDTO = {
 
 describe('CreateProductCache', () => {
   it('should create a product on cache and return success', async () => {
-    const createUseCase = new CreateProductCache(productRepositoryMock);
+    const createUseCase = new CreateProductCache(productCacheRepositoryMock);
 
     const result = await createUseCase.execute(inputMock);
 
@@ -62,7 +62,7 @@ describe('CreateProductCache', () => {
 
   it('should return an error when create a product and return error', async () => {
     const productRepositoryErrorMock: IProductCacheRepository = {
-      ...productRepositoryMock,
+      ...productCacheRepositoryMock,
       createProduct: jest.fn(() => {
         throw new Error('Erro mockado');
       }),
