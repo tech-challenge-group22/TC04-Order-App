@@ -30,7 +30,7 @@ export default class ListProduct implements UseCaseInterface {
             const createUseCase: CreateProductCache = new CreateProductCache(
               this.repository,
             );
-            if(result[0]){
+            if (result[0]) {
               let mount = result[0];
               const input: CreateProductInputDTO = {
                 itemId: Number(mount.id),
@@ -40,8 +40,8 @@ export default class ListProduct implements UseCaseInterface {
                 itemDescription: mount.item_description,
                 itemPrice: Number(mount.item_price),
               };
-  
-              let saveCacheResponse = await createUseCase.execute(input);
+
+              await createUseCase.execute(input);
               result = this.normalizeOutput(result, 'relational');
             }
           }
@@ -59,7 +59,6 @@ export default class ListProduct implements UseCaseInterface {
       };
       return output;
     } catch (err) {
-      console.log(err);
       const output: ListProductOutputDTO = {
         hasError: true,
         message: 'Failed to search product',
