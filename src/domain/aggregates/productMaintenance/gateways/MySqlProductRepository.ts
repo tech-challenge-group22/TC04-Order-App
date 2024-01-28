@@ -193,12 +193,6 @@ export default class MySqlProductRepository implements IProductRepository {
   }
 
   closeConnection(): void {
-    this.connection.end((err: { message: any; }) => {
-      if (err) {
-        console.error('Error closing MySQL connection:', err.message);
-      } else {
-        console.log('MySQL connection closed.');
-      }
-    });
+    console.log('Close connection');
   }
 }

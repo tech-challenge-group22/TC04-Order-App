@@ -30,6 +30,7 @@ export default class CreateProduct implements UseCaseInterface {
         input.itemDescription,
         input.itemImgUrl,
       );
+
       let output: CreateProductOutputDTO = {
         hasError: false,
         message: 'Product created successfully',
@@ -50,7 +51,6 @@ export default class CreateProduct implements UseCaseInterface {
   private validateRequest(input: CreateProductInputDTO): string[] {
     let errors: string[] = [];
     if (Object.keys(input).length === 0) {
-      //return response.status(400).json({ error: 'Missing body.' });
       errors.push('Missing body.');
       return errors;
     }

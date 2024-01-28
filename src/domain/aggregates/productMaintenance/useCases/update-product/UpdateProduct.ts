@@ -22,7 +22,7 @@ export default class UpdateProduct implements UseCaseInterface {
         };
       }
 
-      const result = await this.repository.updateProduct(
+      await this.repository.updateProduct(
         input.itemId,
         input.itemName,
         input.itemPrice,
