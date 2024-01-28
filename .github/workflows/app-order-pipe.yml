@@ -45,9 +45,9 @@ jobs:
       - name: Build and Push to ECR
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 839074601035.dkr.ecr.us-east-1.amazonaws.com
-          docker build -t order/production .
-          docker tag order/production:latest 839074601035.dkr.ecr.us-east-1.amazonaws.com/order/production:latest
-          docker push 839074601035.dkr.ecr.us-east-1.amazonaws.com/order/production:latest
+          docker build -t tfstate-tcfiap-order .
+          docker tag tfstate-tcfiap-order:latest 839074601035.dkr.ecr.us-east-1.amazonaws.com/tfstate-tcfiap-order:latest
+          docker push 839074601035.dkr.ecr.us-east-1.amazonaws.com/tfstate-tcfiap-order:latest
 
   deploy-aws:
     runs-on: ubuntu-latest
