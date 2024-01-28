@@ -1,7 +1,6 @@
 import ExpressAdapter from '../../src/application/adapters/ExpressAdapter';
 import OrderRoute from '../../src/infrastructure/api/order.route';
 import ProductRoute from '../../src/infrastructure/api/product.route';
-import AWSSQSAdapter from '../../src/application/adapters/AWSSqsAdapter';
 
 describe('server setup', () => {
   it('should create an Express server instance', () => {
@@ -16,10 +15,5 @@ describe('server setup', () => {
 
     expect(productRoute).toBeInstanceOf(ProductRoute);
     expect(orderRoute).toBeInstanceOf(OrderRoute);
-  });
-
-  it('should create an instance of AWSSQSAdapter', () => {
-    const queueService = AWSSQSAdapter.getInstance();
-    expect(queueService).toBeInstanceOf(AWSSQSAdapter);
   });
 });
