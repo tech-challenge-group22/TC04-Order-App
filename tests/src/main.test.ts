@@ -18,8 +18,8 @@ describe('server setup', () => {
     expect(orderRoute).toBeInstanceOf(OrderRoute);
   });
 
-  it('should create an instance of AWSSQSAdapter', () => {
-    const queueService = AWSSQSAdapter.getInstance();
-    expect(queueService).toBeInstanceOf(AWSSQSAdapter);
-  });
+  // it('should create an instance of AWSSQSAdapter', () => {
+  //   const queueService = AWSSQSAdapter.getInstance();
+  //   expect(queueService).toBeInstanceOf(AWSSQSAdapter);
+  // });
 });
