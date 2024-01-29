@@ -37,7 +37,7 @@ export default class ExpressAdapter implements HttpServer {
       swaggerUI.serve,
       swaggerUI.setup(swaggerDocument),
     );
-    // this.server.use(verifyToken); //TODO Voltar com autenticação
+    this.server.use(verifyToken);
   }
 
   public router(route: any) {
